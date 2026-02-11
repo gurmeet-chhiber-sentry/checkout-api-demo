@@ -302,7 +302,8 @@ app.post('/api/checkout', async (req, res) => {
       order,
     });
   } catch (error) {
-    if (SENTRY_ENABLED) {
+    // Only capture unexpected errors in Sentry (exclude client-side validation errors)
+    if (SENTRY_ENABLED && error.name !== 'ValidationError') {
       Sentry.captureException(error, {
         tags: {
           checkout_failed: 'true',
@@ -375,7 +376,9 @@ app.get('/api/orders/:id', (req, res) => {
       order,
     });
   } catch (error) {
-    if (SENTRY_ENABLED) {
+    // Only capture unexpected errors in Sentry (exclude expected client-side errors)
+    const expectedErrors = ['ValidationError', 'NotFoundError', 'AuthorizationError'];
+    if (SENTRY_ENABLED && !expectedErrors.includes(error.name)) {
       Sentry.captureException(error, {
         tags: {
           order_id: id,
