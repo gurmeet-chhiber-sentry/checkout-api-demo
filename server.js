@@ -210,7 +210,27 @@ app.get('/api/products', async (req, res) => {
 app.post('/api/checkout', async (req, res) => {
   const { productId, quantity } = req.body;
   const userId = req.userId;
-  const forceError = req.query.forceError === '1';
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  // Only allow forceError parameter in non-production environments
+  let forceError = false;
+  if (req.query.forceError === '1') {
+    if (isProduction) {
+      console.warn('⚠️  forceError parameter detected in production environment - ignoring for security');
+      if (SENTRY_ENABLED) {
+        Sentry.captureMessage('forceError parameter used in production', {
+          level: 'warning',
+          tags: {
+            security_issue: 'true',
+            user_id: userId,
+          },
+        });
+      }
+    } else {
+      forceError = true;
+    }
+  }
+  
   const slowMode = req.query.slow === '1';
 
   if (SENTRY_ENABLED) {
