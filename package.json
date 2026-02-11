@@ -1,0 +1,23 @@
+{
+  "name": "checkout-api-demo",
+  "version": "1.0.0",
+  "description": "Minimal Checkout API for Sentry demo - showcasing errors, performance, and observability",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test-success": "curl -X POST http://localhost:3000/api/checkout -H 'Content-Type: application/json' -H 'x-user-id: user_123' -d '{\"productId\":\"prod_1\",\"quantity\":2}'",
+    "test-error": "curl -X POST 'http://localhost:3000/api/checkout?forceError=1' -H 'Content-Type: application/json' -H 'x-user-id: user_456' -d '{\"productId\":\"prod_2\",\"quantity\":1}'",
+    "test-slow": "curl -X POST 'http://localhost:3000/api/checkout?slow=1' -H 'Content-Type: application/json' -H 'x-user-id: user_789' -d '{\"productId\":\"prod_3\",\"quantity\":1}'",
+    "load-test": "for i in {1..50}; do npm run test-success & done; wait"
+  },
+  "keywords": ["sentry", "demo", "observability", "api"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@sentry/node": "^8.0.0",
+    "@sentry/profiling-node": "^8.0.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0"
+  }
+}
